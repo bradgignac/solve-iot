@@ -1,0 +1,8 @@
+{
+  "name": "solve_iot",
+  "description": "IoT Demo for Rackspace Solve",
+  "memory": 128,
+  "timeout": 5,
+  "role": "arn:aws:iam::660124110819:role/solve_iot_lambda_function",
+  "environment": {}
+}
