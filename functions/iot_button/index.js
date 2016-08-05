@@ -1,12 +1,28 @@
 const assert = require('assert');
 const request = require('request');
+const AWS = require('aws-sdk');
 const Twitter = require('twitter-node-client').Twitter;
 
 console.log('Executing Lambda function');
 
 const email = (cb) => {
-  console.log('Sending email');
-  cb(null);
+  assert(process.env.SNS_TOPIC, 'SNS_TOPIC is required');
+
+  const topic = process.env.SNS_TOPIC;
+  const message = 'Hello, Rackspace::Solve San Francisco! #rackspacesolve';
+  const sns = new AWS.SNS({ region: 'us-west-2' });
+
+  console.log('Publishing message to SNS topic: topic=%s, message=%s', topic, message);
+
+  sns.publish({ TopicArn: topic, Message: message }, (err, data) => {
+    if (err) {
+      console.error('Received error while publishing SNS message: err=%j', err);
+      cb(err);
+    } else {
+      console.log('Successfully published SNS message: data=%j', data);
+      cb(null, data);
+    }
+  });
 };
 
 const tweet = (cb) => {
