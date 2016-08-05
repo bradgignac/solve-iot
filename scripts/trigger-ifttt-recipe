@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+IFTTT_EVENT="$1"
+IFTTT_KEY="$2"
+
+curl -X POST "https://maker.ifttt.com/trigger/$1/with/key/$2"
