@@ -1,5 +1,6 @@
 const assert = require('assert');
 const request = require('request');
+const Twitter = require('twitter-node-client').Twitter;
 
 console.log('Executing Lambda function');
 
@@ -9,11 +10,34 @@ const email = (cb) => {
 };
 
 const tweet = (cb) => {
-  console.log('Tweeting tweet');
-  cb(null);
+  assert(process.env.TWITTER_CONSUMER_KEY, 'TWITTER_CONSUMER_KEY is required');
+  assert(process.env.TWITTER_CONSUMER_SECRET, 'TWITTER_CONSUMER_SECRET is required');
+  assert(process.env.TWITTER_ACCESS_TOKEN, 'TWITTER_ACCESS_TOKEN is required');
+  assert(process.env.TWITTER_ACCESS_TOKEN_SECRET, 'TWITTER_ACCESS_TOKEN_SECRET is required');
+
+  const status = 'Hello, Rackspace::Solve San Francisco! #rackspacesolve';
+  const twitter = new Twitter({
+    consumerKey: process.env.TWITTER_CONSUMER_KEY,
+    consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+    accessToken: process.env.TWITTER_ACCESS_TOKEN,
+    accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+  });
+
+  console.log('Posting tweet to Twitter: status=%s', status);
+
+  twitter.postTweet({ status: status }, (err) => {
+    console.error('Received error while posting tweet: err=%j', err);
+    cb(err);
+  }, (data) => {
+    console.log('Successfully posted tweet: data=%j', data);
+    cb(null, data);
+  });
 };
 
 const strobe = (cb) => {
+  assert(process.env.IFTTT_EVENT, 'IFTTT_EVENT is required');
+  assert(process.env.IFTTT_KEY, 'IFTTT_KEY is required');
+
   const event = process.env.IFTTT_EVENT;
   const key = process.env.IFTTT_KEY;
   const url = 'https://maker.ifttt.com/trigger/' + event + '/with/key/' + key;
@@ -38,9 +62,6 @@ exports.handle = (e, ctx, cb) => {
   console.log('Processing Lambda event: event=%j', e);
 
   try {
-    assert(process.env.IFTTT_EVENT, 'IFTTT_EVENT is required');
-    assert(process.env.IFTTT_KEY, 'IFTTT_KEY is required');
-
     switch (e.clickType) {
       case 'SINGLE':
         return email(cb);
