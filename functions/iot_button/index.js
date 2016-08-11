@@ -1,4 +1,5 @@
 const assert = require('assert');
+const crypto = require('crypto');
 const request = require('request');
 const AWS = require('aws-sdk');
 const Twitter = require('twitter-node-client').Twitter;
@@ -31,7 +32,8 @@ const tweet = (cb) => {
   assert(process.env.TWITTER_ACCESS_TOKEN, 'TWITTER_ACCESS_TOKEN is required');
   assert(process.env.TWITTER_ACCESS_TOKEN_SECRET, 'TWITTER_ACCESS_TOKEN_SECRET is required');
 
-  const status = 'Hello, Rackspace::Solve San Francisco! #rackspacesolve';
+  const id = crypto.randomBytes(4).toString('hex');
+  const status = 'Hello, Rackspace::Solve San Francisco! #rackspacesolve ' + id;
   const twitter = new Twitter({
     consumerKey: process.env.TWITTER_CONSUMER_KEY,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
